@@ -1,3 +1,4 @@
+
 import {storeClicks} from "@/db/apiClicks";
 import {getLongUrl} from "@/db/apiUrls";
 import useFetch from "@/hooks/use-fetch";
@@ -22,21 +23,31 @@ const RedirectLink = () => {
   useEffect(() => {
     if (!loading && data) {
       fnStats();
+
+      // Redirect after 5 seconds
+      setTimeout(() => {
+        window.location.href = data.original_url;
+      }, 5000);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
 
-  if (loading || loadingStats) {
-    return (
-      <>
-        <BarLoader width={"100%"} color="#36d7b7" />
-        <br />
-        Redirecting...
-      </>
-    );
+  // Prevent crash if data is null
+  if (loading || loadingStats || !data) {
+    return null;
   }
 
-  return null;
+  // Return SEO metadata only, no visible content
+  return (
+    <>
+      <head>
+        <title>Redirecting to {data.original_url}</title>
+        <meta name="description" content={`Redirecting to ${data.original_url}`} />
+        <meta name="robots" content="index, follow" />
+      </head>
+    </>
+  );
 };
 
 export default RedirectLink;
+
